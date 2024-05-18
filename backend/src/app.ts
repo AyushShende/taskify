@@ -1,5 +1,6 @@
 import express, { Application, Response, Request } from 'express';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 
 import { NotFoundError } from './errors';
 import { globalErrorHandler } from './middlewares/errorhandler.middleware';
@@ -10,6 +11,7 @@ export const createApp = () => {
 
   app
     .use(morgan('dev'))
+    .use(cookieParser())
     .use(express.json())
     .get('/healthz', (_req: Request, res: Response) => {
       return res.json({ ok: true });

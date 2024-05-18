@@ -1,20 +1,35 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { login, register } from './auth.service';
+import { login, logout, register } from './auth.service';
+import { env } from '../config/serverEnvSchema';
+import { UnAuthorizedError } from '../errors';
+
+const cookieOptions = {
+  httpOnly: true,
+  sameSite: true,
+  secure: env.NODE_ENV !== 'development'
+};
 
 export const registerHandler = async (req: Request, res: Response) => {
   const { access_token, refresh_token } = await register(req.body);
-  res.status(StatusCodes.CREATED).json({
-    access_token,
-    refresh_token
-  });
+  res.cookie('access_token', access_token, cookieOptions);
+  res.cookie('refresh_token', refresh_token, cookieOptions);
+  res.status(StatusCodes.CREATED).json();
 };
 
 export const loginHandler = async (req: Request, res: Response) => {
   const { access_token, refresh_token } = await login(req.body);
+  res.cookie('access_token', access_token, cookieOptions);
+  res.cookie('refresh_token', refresh_token, cookieOptions);
+  res.status(StatusCodes.OK).json();
+};
+
+export const logoutHandler = async (req: Request, res: Response) => {
+  await logout(req);
+  res.clearCookie('access_token', cookieOptions);
+  res.clearCookie('refresh_token', cookieOptions);
   res.status(StatusCodes.OK).json({
-    access_token,
-    refresh_token
+    message: 'user logged out successfully'
   });
 };

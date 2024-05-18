@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
 import { User } from '@prisma/client';
+import { Request } from 'express';
 
 import { BadRequestError, UnAuthorizedError } from '../errors';
 import { createUser, findUserByIdOrEmail } from '../user/user.service';
@@ -65,4 +66,13 @@ export const login = async (loginUserInput: LoginUserInput) => {
   }
 
   return await generateTokens(user);
+};
+
+export const logout = async (req: Request) => {
+  if (!req.userId) {
+    throw new UnAuthorizedError();
+  }
+  console.log(req.userId);
+
+  await refreshTokenIdsStorage.invalidate(req.userId);
 };
