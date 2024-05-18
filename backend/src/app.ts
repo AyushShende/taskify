@@ -2,6 +2,7 @@ import express, { Application, Response, Request } from 'express';
 import morgan from 'morgan';
 import { NotFoundError } from './errors/NotFoundError';
 import { globalErrorHandler } from './middlewares/errorhandler.middleware';
+import { authRouter } from './auth/auth.router';
 
 export const createApp = () => {
   const app: Application = express();
@@ -14,7 +15,7 @@ export const createApp = () => {
     });
 
   // ROUTERS
-
+  app.use('/api/auth', authRouter);
   // NOT FOUND MIDDLEWARE
   app.all('*', () => {
     throw new NotFoundError();

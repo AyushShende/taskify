@@ -9,7 +9,12 @@ const envSchema = z.object({
   POSTGRES_USER: z.string(),
   POSTGRES_PASSWORD: z.string(),
   POSTGRES_DB: z.string(),
-  DATABASE_URL: z.string()
+  DATABASE_URL: z.string(),
+  REDIS_PORT: z.coerce.number().default(6379),
+  REDIS_HOST: z.string(),
+  JWT_SECRET: z.string(),
+  JWT_ACCESS_TOKEN_TTL: z.coerce.number(),
+  JWT_REFRESH_TOKEN_TTL: z.coerce.number()
 });
 
 const envServer = envSchema.safeParse(process.env);
