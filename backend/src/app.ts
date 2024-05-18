@@ -1,6 +1,7 @@
 import express, { Application, Response, Request } from 'express';
 import morgan from 'morgan';
-import { NotFoundError } from './errors/NotFoundError';
+
+import { NotFoundError } from './errors';
 import { globalErrorHandler } from './middlewares/errorhandler.middleware';
 import { authRouter } from './auth/auth.router';
 

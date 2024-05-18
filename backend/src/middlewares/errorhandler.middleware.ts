@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { BaseError } from '../errors/BaseError';
+import { BaseError } from '../errors';
 import { logger } from '../utils/logger';
 import { env } from '../config/serverEnvSchema';
 

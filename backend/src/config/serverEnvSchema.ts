@@ -1,4 +1,5 @@
 import z from 'zod';
+
 import { logger } from '../utils/logger';
 
 const envSchema = z.object({
