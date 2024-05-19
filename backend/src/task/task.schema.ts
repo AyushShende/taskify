@@ -18,4 +18,16 @@ export const createTaskSchema = object({
   })
 });
 
+const params = {
+  params: object({
+    taskId: string()
+  })
+};
+
+export const getTaskSchema = object({
+  ...params
+});
+
+export type GetTaskInput = TypeOf<typeof getTaskSchema>['params'];
+
 export type CreateTaskInput = TypeOf<typeof createTaskSchema>['body'];
