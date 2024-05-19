@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import { NotFoundError } from './errors';
 import { globalErrorHandler } from './middlewares/errorhandler.middleware';
 import { authRouter } from './auth/auth.router';
+import { taskRouter } from './task/task.router';
 
 export const createApp = () => {
   const app: Application = express();
@@ -19,6 +20,8 @@ export const createApp = () => {
 
   // ROUTERS
   app.use('/api/auth', authRouter);
+  app.use('/api/task', taskRouter);
+
   // NOT FOUND MIDDLEWARE
   app.all('*', () => {
     throw new NotFoundError();
