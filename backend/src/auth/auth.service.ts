@@ -9,7 +9,9 @@ import { createUser, findUserByIdOrEmail } from '../user/user.service';
 import { CreateUserInput, LoginUserInput } from './auth.schema';
 import { env } from '../config/serverEnvSchema';
 import { ActiveUserData, RefreshTokenPayload } from './auth.types';
-import refreshTokenIdsStorage from '../utils/refreshTokenIdsStorage';
+import refreshTokenIdsStorage, {
+  InvalidatedRefreshTokenError
+} from '../utils/refreshTokenIdsStorage';
 
 export const register = async (createUserInput: CreateUserInput) => {
   const user = await findUserByIdOrEmail({ email: createUserInput.email });
@@ -75,4 +77,33 @@ export const logout = async (req: Request) => {
   console.log(req.userId);
 
   await refreshTokenIdsStorage.invalidate(req.userId);
+};
+
+export const refreshTokens = async (req: Request) => {
+  try {
+    const refreshToken = req.cookies.refresh_token;
+    if (!refreshToken) {
+      throw new UnAuthorizedError();
+    }
+    const { refreshTokenId, sub } = jwt.verify(refreshToken, env.JWT_SECRET) as RefreshTokenPayload;
+
+    const user = await findUserByIdOrEmail({ userId: sub });
+    if (!user) {
+      throw new UnAuthorizedError('User does not exist');
+    }
+
+    const isValid = await refreshTokenIdsStorage.validate(user.id, refreshTokenId);
+    if (isValid) {
+      await refreshTokenIdsStorage.invalidate(user.id);
+    } else {
+      throw new UnAuthorizedError('Invalid token');
+    }
+    return await generateTokens(user);
+  } catch (error) {
+    if (error instanceof InvalidatedRefreshTokenError) {
+      // Inform user about the possible theft of his refresh token
+      throw new UnAuthorizedError('Access Denied');
+    }
+    throw new UnAuthorizedError('Invalid token');
+  }
 };

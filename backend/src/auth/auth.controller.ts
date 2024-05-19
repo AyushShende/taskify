@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { login, logout, register } from './auth.service';
+import { login, logout, refreshTokens, register } from './auth.service';
 import { env } from '../config/serverEnvSchema';
-import { UnAuthorizedError } from '../errors';
 
 const cookieOptions = {
   httpOnly: true,
@@ -32,4 +31,11 @@ export const logoutHandler = async (req: Request, res: Response) => {
   res.status(StatusCodes.OK).json({
     message: 'user logged out successfully'
   });
+};
+
+export const refreshTokensHandler = async (req: Request, res: Response) => {
+  const { access_token, refresh_token } = await refreshTokens(req);
+  res.cookie('access_token', access_token, cookieOptions);
+  res.cookie('refresh_token', refresh_token, cookieOptions);
+  res.status(StatusCodes.OK).json();
 };
