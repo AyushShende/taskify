@@ -2,7 +2,6 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
 import { User } from '@prisma/client';
-import { Request } from 'express';
 
 import { BadRequestError, UnAuthorizedError } from '../errors';
 import { createUser, findUserByIdOrEmail } from '../user/user.service';
@@ -16,7 +15,7 @@ import refreshTokenIdsStorage, {
 export const register = async (createUserInput: CreateUserInput) => {
   const user = await findUserByIdOrEmail({ email: createUserInput.email });
   if (user) {
-    throw new BadRequestError('User already exists');
+    throw new BadRequestError('Invalid Credentials');
   }
 
   const hashedPassword = await bcrypt.hash(createUserInput.password, 10);
@@ -70,21 +69,12 @@ export const login = async (loginUserInput: LoginUserInput) => {
   return await generateTokens(user);
 };
 
-export const logout = async (req: Request) => {
-  if (!req.userId) {
-    throw new UnAuthorizedError();
-  }
-  console.log(req.userId);
-
-  await refreshTokenIdsStorage.invalidate(req.userId);
+export const logout = async (userId: string) => {
+  await refreshTokenIdsStorage.invalidate(userId);
 };
 
-export const refreshTokens = async (req: Request) => {
+export const refreshTokens = async (refreshToken: string) => {
   try {
-    const refreshToken = req.cookies.refresh_token;
-    if (!refreshToken) {
-      throw new UnAuthorizedError();
-    }
     const { refreshTokenId, sub } = jwt.verify(refreshToken, env.JWT_SECRET) as RefreshTokenPayload;
 
     const user = await findUserByIdOrEmail({ userId: sub });

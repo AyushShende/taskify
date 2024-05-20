@@ -24,10 +24,35 @@ const params = {
   })
 };
 
+export const getAllUserTasksSchema = object({
+  query: object({
+    status: nativeEnum(TaskStatusEnumType).optional()
+  }).optional()
+});
+
 export const getTaskSchema = object({
+  ...params
+});
+
+export const updateTaskSchema = object({
+  ...params,
+  body: object({
+    title: string(),
+    description: string(),
+    status: nativeEnum(TaskStatusEnumType)
+  }).partial()
+});
+
+export const deleteTaskSchema = object({
   ...params
 });
 
 export type GetTaskInput = TypeOf<typeof getTaskSchema>['params'];
 
+export type GetAllUserTasksInput = TypeOf<typeof getAllUserTasksSchema>['query'];
+
 export type CreateTaskInput = TypeOf<typeof createTaskSchema>['body'];
+
+export type UpdateTaskInput = TypeOf<typeof updateTaskSchema>;
+
+export type DeleteTaskInput = TypeOf<typeof deleteTaskSchema>['params'];
